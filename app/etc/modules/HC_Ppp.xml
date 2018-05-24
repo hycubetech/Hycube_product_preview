@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <HC_Ppp>
+            <active>true</active>
+            <codePool>local</codePool>
+        </HC_Ppp>
+    </modules>
+</config> 

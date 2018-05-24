@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <catalog_category_view>
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/hc_ppp.css</stylesheet> </action>
+            <action method="addJs">  <script>ppp/hc_ppp.js</script></action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="ppp/wrapper" name="hc.ppp.wrapper" after="-" template="ppp/wrapper.phtml" />
+        </reference>
+    </catalog_category_view>
+    <catalogsearch_result_index>
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/hc_ppp.css</stylesheet> </action>
+            <action method="addJs">  <script>ppp/hc_ppp.js</script></action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="ppp/wrapper" name="hc.ppp.wrapper" after="-" template="ppp/wrapper.phtml" />
+        </reference>
+    </catalogsearch_result_index>
+    <catalogsearch_advanced_result>
+         <reference name="head">
+            <action method="addCss"><stylesheet>css/hc_ppp.css</stylesheet> </action>
+            <action method="addJs">  <script>ppp/hc_ppp.js</script></action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="ppp/wrapper" name="hc.ppp.wrapper" after="-" template="ppp/wrapper.phtml" />
+        </reference>
+    </catalogsearch_advanced_result>
+    <cms_page>
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/hc_ppp.css</stylesheet> </action>
+            <action method="addJs">  <script>ppp/hc_ppp.js</script></action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="ppp/wrapper" name="hc.ppp.wrapper" after="-" template="ppp/wrapper.phtml" />
+        </reference>
+    </cms_page>
+</layout>

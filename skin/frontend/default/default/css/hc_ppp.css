@@ -1,0 +1,29 @@
+/**
+ * aheadWorks Co.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ *
+ * @category   HC
+ * @package    HC_Hometabspro
+ * @copyright  Copyright (c) 2009-2011 aheadWorks Co. (http://www.aheadworks.com)
+ * @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+*/
+
+#hc_ppp_wrapper{
+
+    display: none;
+    position: absolute;
+    border: 1px solid ;
+    border-color: #999;
+    background-color: rgb(255, 255, 255);
+    width: auto;
+    text-align: left;
+    z-index: 99999;
+    padding: 15px 15px 15px 15px;
+
+}

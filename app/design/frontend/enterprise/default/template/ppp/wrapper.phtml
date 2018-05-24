@@ -1,0 +1,175 @@
+<?php
+/**
+* aheadWorks Co.
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the EULA
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://ecommerce.aheadworks.com/LICENSE-M1.txt
+*
+* @category   HC
+* @package    HC_Ppp
+* @copyright  Copyright (c) 2008-2011 aheadWorks Co. (http://www.aheadworks.com)
+* @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+*/
+?>
+
+<?php
+	$_max_iterator = Mage::helper('ppp')->extensionEnabled('HC_Onsale') ? 3 : 2;
+	
+	$containersize = $this->getContainersize();
+	$loaderLineHeight = $this->getLoaderLineHeight();
+	$loadingIndicator = $this->getLoadingIndicator();
+
+?>
+<script type="text/javascript">
+
+	var hc_ppp_magentobaseurl = '<?php echo $this->getBaseUrl(); ?>';   
+	var hc_ppp_divtoshowup = 'hc_ppp_wrapper';
+	var hc_ppp_timeoutID;
+	var hc_ppp_timeout = '<?php echo $this->getTimeout(); ?>';
+    var pppKiller;
+	
+<?php if (Mage::registry('current_category')) { ?>
+		var hc_ppp_isallowedforcategory = '<?php echo $this->isAvaliableForThisCategory(Mage::registry('current_category')->getId()); ?>';
+<?php } else { ?>
+		var hc_ppp_isallowedforcategory = true;
+<?php } ?>
+
+
+
+	Event.observe(window,'load', function() {
+
+		if (hc_ppp_isallowedforcategory){
+            
+			Event.observe(document ,'mouseover', function(event){
+
+				var hc_ppp_tagert = event.srcElement || event.target;
+				if ((hc_ppp_tagert.tagName.toLowerCase() == 'img') ||
+                    (hc_ppp_tagert.className.toLowerCase() == 'onsale-category-container') ||
+                    (hc_ppp_tagert.up(1).className.toLowerCase() == 'onsale-category-container')){
+                    
+                     
+					hc_ppp_processelement(hc_ppp_tagert, event);
+                    window.clearTimeout(pppKiller);
+				}
+			});
+		}
+		
+		function hc_ppp_processelement(hc_ppp_tagert, event){
+			var hc_productId;
+			var iterator = 0;
+			var endscan = false;
+			var arrayOfelemnts = new Array();
+			var productIds = new Array();
+
+			do{
+                
+				hc_ppp_parentinnerhtml =  $(hc_ppp_tagert).up(iterator).innerHTML;
+				hc_ppp_parentinnerhtml.scan(/(id=.*ppp-id-.?\d+)/i, function(match){
+
+					arrayOfelemnts.push(match[0]);
+					arrayOfelemnts =  arrayOfelemnts.uniq();
+					
+					arrayOfelemnts[0].toString().scan(/\d+/, function(match2){
+						hc_productId = match2[0];
+					});
+
+					arrayOfelemnts.each(function(element) {
+						element.toString().scan(/\d+/, function(match2){
+							productIds.push(match2[0]);
+							productIds = productIds.uniq();
+						});
+					});
+					
+					endscan = true;
+					
+					if (productIds.length >= 2){
+						endscan = false;
+						hc_productId = "";
+					}
+				});
+
+				if (hc_productId) {
+               
+					hc_ppp_mouseout_observer(hc_ppp_tagert);
+
+					hc_ppp_tagert.parentNode.title = '';
+					hc_ppp_tagert.alt = '';
+					hc_ppp_tagert.title = '';
+				
+					var hc_imageurl = hc_ppp_magentobaseurl + 'fppp/ppp/preview/id/' + hc_productId;
+
+					hc_ppp_timeoutID =   window.setTimeout( function() {
+					
+						ShowContent(hc_ppp_divtoshowup ,event);
+						
+						var repoDivToFind = "hc_ppp_genDiv" + hc_productId;
+
+						if ($(repoDivToFind)){
+							
+							var innerhtml = $(repoDivToFind).innerHTML;
+
+							$(hc_ppp_divtoshowup).update(innerhtml);
+
+							
+						}else{
+                            
+                        
+							new Ajax.Request(hc_imageurl, {
+								method: 'get',
+								onSuccess: function(transport) {
+									$(hc_ppp_divtoshowup).update(transport.responseText);
+									var genDiv = new Element("div",{
+										id:"hc_ppp_genDiv"+hc_productId,
+										style:"display:none;"
+									});                               
+									genDiv.insert(transport.responseText);
+
+									$('hc_ppp_repo').insert(genDiv);
+
+								}
+							})
+						}
+					} ,  hc_ppp_timeout);
+
+				}
+				if (iterator < <?php echo $_max_iterator ?>) {iterator++;} else {endscan = true}
+			}while(!endscan)
+		}
+
+		function hc_ppp_mouseout_observer(element){
+
+			var hc_ppp_loader_content = "<div id='d_hc_ppp_content' align='center' style='max-<?php echo $containersize ?>  text-align: center; z-index: 99999;'>\n\
+																	<p id='d_hc_ppp_p' style='sline-height: <?php echo $loaderLineHeight ?>; vertical-align: middle;'>\n\
+																		<img alt='<?php echo Mage::helper('ppp')->__('Please wait....') ?>'  src='<?php echo $loadingIndicator ?>' style=\'vertical-align: middle' />\n\
+																	</p>\n\
+															</div>";
+			//$(hc_ppp_divtoshowup).update(hc_ppp_loader_content);
+			Event.observe(element, 'mouseout', function() {
+				window.clearTimeout(hc_ppp_timeoutID);
+               pppKiller = setTimeout(function (){
+                   HideContent(hc_ppp_divtoshowup);
+                   $(hc_ppp_divtoshowup).update(hc_ppp_loader_content);
+               },250);
+
+			});
+		}
+
+	});
+
+</script>
+
+
+
+<div id="hc_ppp_wrapper" style="display: none">
+    <div id='d_hc_ppp_content' align='center' style='max-<?php echo $containersize ?>  text-align: center; z-index: 99999;'>
+		<p id='d_hc_ppp_p' style='sline-height: <?php echo $loaderLineHeight ?>; vertical-align: middle;'>
+			<img alt='<?php echo Mage::helper('ppp')->__('Please wait....') ?>'  src='<?php echo $loadingIndicator ?>' style='vertical-align: middle' />
+		</p>
+	</div>
+</div>
+
+<div id="hc_ppp_repo" style="display: none"></div>

@@ -1,0 +1,254 @@
+<?php
+/**
+ * aheadWorks Co.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ *
+ * @category   HC
+ * @package    HC_Ppp
+ * @copyright  Copyright (c) 2008-2011 aheadWorks Co. (http://www.aheadworks.com)
+ * @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ */
+?>
+<script type="text/javascript">
+
+
+    var BLANK_IMG = '<?php echo $this->helper('core/js')->getJsUrl('spacer.gif') ?>';
+    Ext.BLANK_IMAGE_URL = BLANK_IMG;
+</script>
+
+<input type="text" id="ppp_showed_categories" class="ppp_selected_input  input-text" onmouseover="document.getElementById('ppp_selector').style.display='block';">
+<div class="ppp_selector" id="ppp_selector" onmouseout="document.getElementById('ppp_selector').style.display='none';">
+    <div class="link-container" onclick="document.getElementById('id_ppp_popup').style.display='block';">
+        <h4 class="title">Click Here to Select Categories</h4>
+    </div>
+</div>
+<div class="ppp_popup" id="id_ppp_popup" onmouseout="document.getElementById('ppp_selector').style.display='none';">
+    <div class="close_button" onclick="document.getElementById('id_ppp_popup').style.display='none';"></div>
+    <div class="content">
+
+        <div class="entry-edit">
+            <fieldset id="grop_fields">
+                <input type="hidden" id="id_ppp_categories" name="groups[ppp_configuration][fields][categories][value]" value="<?php echo ',' . implode(',', $this->getCategoryIds()); ?>">
+                <div id="ppp-categories" class="tree"></div>
+            </fieldset>
+        </div>
+        <?php if ($this->getRootNode() && $this->getRootNode()->hasChildren()): ?>
+            <script type="text/javascript">
+                var status = 0;
+
+                Array.prototype.in_array = function(p_val) {
+                    for(var i = 0, l = this.length; i < l; i++)    {
+                        if(this[i] == p_val) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                Ext.EventManager.onDocumentReady(function() {
+                    if(document.getElementById('id_ppp_categories_inherit')){
+                        document.getElementById('ppp_showed_categories').disabled = 'true';
+                    }
+                    var categoryLoader = new Ext.tree.TreeLoader({
+                        dataUrl: '<?php echo $this->getLoadTreeUrl() ?>'
+                    });
+                    categoryLoader.createNode = function(config) {
+                        config.uiProvider = Ext.tree.CheckboxNodeUI;
+                        var node;
+                        if (config.children && !config.children.length) {
+                            delete(config.children);
+                            node = new Ext.tree.AsyncTreeNode(config);
+
+                        } else {
+                            node = new Ext.tree.TreeNode(config);
+                        }
+                        return node;
+                    };
+
+                    categoryLoader.on("beforeload", function(treeLoader, node) {
+                        treeLoader.baseParams.category = node.attributes.id;
+                    });
+
+                    categoryLoader.on("load", function(treeLoader, node, config) {
+                        varienWindowOnload();
+                    });
+
+                    var tree = new Ext.tree.TreePanel('ppp-categories', {
+                        animate:true,
+                        loader: categoryLoader,
+                        enableDD:false,
+                        containerScroll: true,
+                        rootUIProvider: Ext.tree.CheckboxNodeUI,
+                        selModel: new Ext.tree.CheckNodeMultiSelectionModel(),
+                        rootVisible: '<?php echo $this->getRootNode()->getIsVisible() ?>'
+                    });
+
+                    tree.on('check', function(node) {
+                        if(node.hasChildNodes()){
+
+                            if(node.attributes.response){
+                                if(!response){var response= '';}
+                                response = node.attributes.response.split(",")
+                                for(var i = 0;i<response.length;i++){
+
+                                    var CatNode = node.findChild('id',response[i]);
+
+
+                                    if(node.attributes.checked) {
+                                        CatNode.getUI().check(1);
+                                        categoryAdd(CatNode.id,CatNode.text);
+                                    }
+                                    else{
+                                        CatNode.getUI().check(0);
+                                        categoryRemove(CatNode.id,CatNode.text);
+                                    }
+
+                                }
+
+
+                            }
+                            else{
+
+                                new Ajax.Request('<?php echo $this->getUrl('admin_ppp/adminhtml_tree/getCatChildrens'); ?>',
+                                {
+                                    parameters: {category: node.id},
+                                    onSuccess: function(transport){
+                                        var response = transport.responseText || "no response text";
+                                        node.attributes.response = response;
+                                        response = response.split(",")
+                                        for(var i = 0;i<response.length;i++){
+
+                                            var CatNode = node.findChild('id',response[i]);
+
+                                            if(node.attributes.checked) {
+                                                CatNode.getUI().check(1);
+                                                categoryAdd(CatNode.id,CatNode.text);
+                                            }
+                                            else{
+                                                CatNode.getUI().check(0);
+                                                categoryRemove(CatNode.id,CatNode.text);
+                                            }
+
+                                        }
+                                    },
+                                    onFailure: function(){ alert('Getting error while sending request...') }
+                                });
+                            }
+                        }
+                        if(node.attributes.checked) {
+                            categoryAdd(node.id,node.attributes.text);
+                        }
+                        else {
+                            categoryRemove(node.id,node.attributes.text);
+                        }
+                        varienElementMethods.setHasChanges(node.getUI().checkbox);
+                    }, tree);
+
+                    // set the root node
+                    var root = new Ext.tree.TreeNode({
+                        text: '<?php echo $this->jsQuoteEscape($this->getRootNode()->getName()); ?>',
+                        draggable:false,
+                        checked:'<?php echo $this->getRootNode()->getChecked() ?>',
+                        id:'<?php echo $this->getRootNode()->getId() ?>',
+                        disabled: <?php echo ($this->getRootNode()->getDisabled() ? 'true' : 'false') ?>,
+                        uiProvider: Ext.tree.CheckboxNodeUI
+                    });
+
+                    tree.setRootNode(root);
+                    bildCategoryTree(root, <?php echo $this->getTreeJson(); ?>);
+                    tree.addListener('click', categoryClick.createDelegate(this));
+
+                    // render the tree
+                    tree.render();
+                    root.expand();
+                    //tree.expandAll();
+                });
+
+                function bildCategoryTree(parent, config){
+                    if (!config) return null;
+
+                    if (parent && config && config.length){
+                        for (var i = 0; i < config.length; i++){
+                            if(config[i]['checked']){
+                                if($('ppp_showed_categories').value!=''){
+                                    $('ppp_showed_categories').value = $('ppp_showed_categories').value + ', ';
+                                }
+                                var name = config[i]['text'].split('(');
+                                name = name[0].substr(0,name[0].length - 1);
+                                $('ppp_showed_categories').value = $('ppp_showed_categories').value + name;
+                            }
+                            config[i].uiProvider = Ext.tree.CheckboxNodeUI;
+                            var node;
+                            var _node = Object.clone(config[i]);
+                            if (_node.children && !_node.children.length) {
+                                delete(_node.children);
+                                node = new Ext.tree.AsyncTreeNode(_node);
+
+                            } else {
+                                node = new Ext.tree.TreeNode(config[i]);
+                            }
+                            parent.appendChild(node);
+                            node.loader = node.getOwnerTree().loader;
+                            node.childrens = '';
+                            if(config[i].children){
+                                bildCategoryTree(node, config[i].children);
+                            }
+                        }
+                    }
+                }
+
+                function categoryClick(node, e){
+                    if (node.disabled) {
+                        return;
+                    }
+                    node.getUI().check(!node.getUI().checked());
+                    varienElementMethods.setHasChanges(Event.element(e), e);
+                };
+                function categoryAdd(id,longname) {
+                    var savedData = $('id_ppp_categories').value.split(',');
+                    status = savedData.in_array(id);
+
+                    if(!status){
+                        if($('ppp_showed_categories').value!=''){
+                            $('ppp_showed_categories').value = $('ppp_showed_categories').value + ', ';
+                        }
+
+                        var name = longname.split('(');
+                        name = name[0].substr(0,name[0].length - 1);
+                        $('ppp_showed_categories').value = $('ppp_showed_categories').value + name;
+
+                        var ids = $('id_ppp_categories').value.split(',');
+                        ids.push(id);
+                        $('id_ppp_categories').value = ids.join(',');
+                    }
+                }
+                function categoryRemove(id,longname) {
+                    var ids = $('id_ppp_categories').value.split(',');
+                    // bug #7654 fixed
+                    while (-1 != ids.indexOf(id)) {
+                        ids.splice(ids.indexOf(id), 1);
+                    }
+                    $('id_ppp_categories').value = ids.join(',');
+
+                    var name = longname.split('(');
+                    name = name[0].substr(0,name[0].length - 1);
+
+                    var names = $('ppp_showed_categories').value.split(', ');
+                    while (-1 != names.indexOf(name)) {
+                        names.splice(names.indexOf(name), 1);
+                    }
+                    $('ppp_showed_categories').value = names.join(', ');
+
+                }
+            </script>
+        <?php endif; ?>
+
+
+    </div>
+</div>

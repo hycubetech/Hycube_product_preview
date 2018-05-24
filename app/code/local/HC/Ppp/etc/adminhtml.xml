@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config>
+    <layout>
+        <updates>
+            <ppp>
+                <file>hc_ppp.xml</file>
+            </ppp>
+        </updates>
+    </layout>
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <ppp>
+                                        <title>aheadWorks - Product Preview Pro</title>
+                                    </ppp>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,34 @@
+<?php
+/**
+ * aheadWorks Co.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ *
+ * @category   HC
+ * @package    HC_Ppp
+ * @copyright  Copyright (c) 2008-2011 aheadWorks Co. (http://www.aheadworks.com)
+ * @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ */
+?>
+<?php
+$productName = str_replace("<","&lt;",str_replace(">","&gt;",$this->getProductName()));
+$productImageUrl = $this->getProductImageUrl();
+$containerSize = $this->getContainerSize();
+$imageLineHeight = $this->getImageLineHeight();
+$lineHeight = HC_Ppp_Helper_Config::PRODUCT_NAME_LINE_HEIGHT;
+$displayTitle = $this-> displayTitle();
+?>
+
+<div id="hc_ppp_content" style="<?php echo $containerSize ?> text-align: center;z-index: 99999;" align="center">
+    <h2 id="hc_ppp_producttitle" style="line-height: <?php echo $lineHeight ?>px; <?php echo $displayTitle ?> "><?php echo $productName ?></h2>
+    <div id="hc_ppp_imagecontainer" class="hc_ppp_imgcontainer" style="">
+        <p style="sline-height: <?php echo $imageLineHeight ?>px; vertical-align: middle;">
+            <img id="hc_ppp_productimage"  alt="<?php echo $productName ?>"  src="<?php echo $productImageUrl ?>" style="vertical-align: middle;margin-bottom: 32px;">
+        </p>
+    </div>
+</div>
